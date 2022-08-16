@@ -2,7 +2,7 @@
 
 import torch
 
-
+@torch.jit.script
 def to_homogeneous(grid, d_inv):
     """ create homogeneous vector with inverse depth as the last coordiante """
 
@@ -50,7 +50,7 @@ def to_intrinsic_mat_inv(calibration: torch.Tensor):
 
 
 def create_grid(width, height, device=None):
-    """ creates a grid """
+    """ creates a grid and normalizes coordiantes to [0, 1] """
 
     grid_x, grid_y = torch.meshgrid(torch.arange(0, width, dtype=torch.float32,
                                                  device=device),

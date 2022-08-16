@@ -26,7 +26,7 @@ class Normalize(jit.ScriptModule):
 
     @jit.script_method
     def apply_undistortion(self, grid, lam_d):
-        B, _, H, W = grid.size()
+        """ applies undistortion """
 
         lam_d = lam_d.view(-1, 1, 1, 1)
 

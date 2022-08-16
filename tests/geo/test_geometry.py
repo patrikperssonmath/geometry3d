@@ -11,9 +11,9 @@ from geometry.view_masker import ViewMasker
 from scipy.spatial.transform import Rotation
 import lietorch
 
-#torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cuda.matmul.allow_tf32 = False
 
-#torch.backends.cudnn.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
 
 
 def test_transform():
@@ -69,7 +69,7 @@ def test_transform():
         diff = torch.max(
             (x_proj-torch.tensor(x_coord, dtype=torch.float32)).abs().masked_select(mask_src))
 
-    assert diff < 1e-6
+        assert diff < 5e-6
 
 
 def test_view_masker():
