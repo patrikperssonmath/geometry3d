@@ -63,9 +63,9 @@ def test_interpolation():
 
     val_test = interpolator(image_tensor, point).view(-1, 1).numpy()
 
-    diff = np.mean(np.abs(val_ref-val_test))
+    diff = np.max(np.abs(val_ref-val_test))
 
-    assert diff < 1e-7
+    assert diff < 1e-6
 
     print(val_ref)
     print(val_test)
@@ -86,6 +86,6 @@ def test_identity_sampling():
 
     image_new = interpolator(image_tensor, grid)
 
-    diff = (image_tensor-image_new).abs().mean()
+    diff = (image_tensor-image_new).abs().max()
 
-    assert diff.item() < 1e-7
+    assert diff.item() < 1e-6
