@@ -1,0 +1,11 @@
+tensorboard --logdir=runs
+
+python download-scannet.py --out_dir /database/data/scannet/only_sens/ --type .sens
+
+Deep Recursive Multi-View Stereo (DRMVS)
+
+sudo singularity build drl.simg .devcontainer/singularity.def --force
+
+singularity shell --nv drl.simg 
+
+git submodule update --init --recursive
