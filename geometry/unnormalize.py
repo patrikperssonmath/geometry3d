@@ -1,10 +1,9 @@
 """ applies distortion by the division model and intrisic parameters"""
 import torch
-from torch import nn
-
-from .utility import apply_matrix
 from torch import jit
-from .safe_division import SafeDivision
+
+from geometry.safe_division import SafeDivision
+from geometry.utility import apply_matrix
 
 
 class Unnormalize(jit.ScriptModule):

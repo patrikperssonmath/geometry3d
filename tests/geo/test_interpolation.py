@@ -5,9 +5,6 @@ from geometry.utility import create_grid
 import torch
 import numpy as np
 import kornia as K
-torch.backends.cuda.matmul.allow_tf32 = False
-
-torch.backends.cudnn.allow_tf32 = False
 
 
 def bilinear_interpolate(im, x, y):
@@ -66,10 +63,6 @@ def test_interpolation():
     diff = np.max(np.abs(val_ref-val_test))
 
     assert diff < 1e-6
-
-    print(val_ref)
-    print(val_test)
-
 
 def test_identity_sampling():
 

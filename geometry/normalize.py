@@ -1,7 +1,7 @@
 """ normalizes pixel coordinates and applies undistortion by the division model"""
 import torch
 
-from .utility import apply_matrix
+from geometry.utility import apply_matrix
 from torch import jit
 
 

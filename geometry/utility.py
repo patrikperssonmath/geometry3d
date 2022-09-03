@@ -1,6 +1,8 @@
 """ contains functions for geometric manipulation """
 
+import typing
 import torch
+from typing import Optional
 
 @torch.jit.script
 def to_homogeneous(grid, d_inv):
@@ -49,24 +51,23 @@ def to_intrinsic_mat_inv(calibration: torch.Tensor):
     return k_inv_mat
 
 
-def create_grid(width, height, device=None):
+@torch.jit.script
+def create_grid(width:int, height:int, dtype: torch.dtype=torch.float32, device:typing.Optional[torch.device]=None):
     """ creates a grid and normalizes coordiantes to [0, 1] """
 
-    grid_x, grid_y = torch.meshgrid(torch.arange(0, width, dtype=torch.float32,
+    grid_x, grid_y = torch.meshgrid(torch.arange(0, width, dtype=dtype,
                                                  device=device),
-                                    torch.arange(0, height, dtype=torch.float32,
+                                    torch.arange(0, height, dtype=dtype,
                                                  device=device),
                                     indexing="xy")
 
-    grid_x = torch.unsqueeze(grid_x, 0)/(width-1.0)
+    grid_x = grid_x/(width-1.0)
 
-    grid_y = torch.unsqueeze(grid_y, 0)/(height-1.0)
+    grid_y = grid_y/(height-1.0)
 
-    grid = torch.cat((grid_x, grid_y, torch.ones_like(grid_x)), dim=0)
+    grid = torch.stack((grid_x, grid_y, torch.ones_like(grid_x)), dim=0)
 
-    grid = torch.unsqueeze(grid, 0)
-
-    return grid
+    return torch.unsqueeze(grid, 0)
 
 
 @torch.jit.script
