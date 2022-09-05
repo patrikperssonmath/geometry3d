@@ -21,6 +21,23 @@ class Warp(jit.ScriptModule):
     def forward(self, img, inv_depth, transform, calib, divison_lambda, non_rigid: bool):
         """ call function """
 
+        shape = inv_depth.shape
+
+        if len(shape)==5:
+            inv_depth = inv_depth.view(-1, 1, inv_depth.shape[-2], inv_depth.shape[-1])
+            transform = transform.view(-1, 4, 4)
+            inv_depth = inv_depth.view(-1, 4)
+            inv_depth = inv_depth.view(-1, 1)
+
         x_proj, mask = self.transform.forward(inv_depth, transform, calib, divison_lambda, non_rigid)
 
-        return self.interpolate.forward(img, x_proj).where(mask, self.zero), mask
+        img_w = self.interpolate.forward(img, x_proj).where(mask, self.zero)
+
+        if len(shape)==5:
+            B,N,_,_,_ = shape
+
+            img_w = img_w.view(B, N, img_w.shape[-3], img_w.shape[-2], img_w.shape[-1])
+            
+            mask = mask.view(B, N, 1, img_w.shape[-2], img_w.shape[-1])
+
+        return img_w, mask
