@@ -23,7 +23,7 @@ class Unnormalize(jit.ScriptModule):
     def forward(self, x_proj_in, calib, divison_lambda):
         """ call function """
 
-        x_proj, mask, valid1 = self.apply_distortion_new(
+        x_proj, mask, valid1 = self.apply_distortion(
             x_proj_in, divison_lambda)
 
         x_proj = torch.where(mask.logical_and(valid1), x_proj, x_proj_in)
@@ -62,7 +62,7 @@ class Unnormalize(jit.ScriptModule):
         return torch.cat((x_d, hmg), dim=1), factor > 0
 
     @jit.script_method
-    def apply_distortion_new(self, x_u, lam_d):
+    def apply_distortion(self, x_u, lam_d):
         """
         when the second order polynomial is not degenerate
         """

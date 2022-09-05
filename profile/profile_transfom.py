@@ -38,8 +38,8 @@ def profile_transform():
     with torch.profiler.profile(
         schedule=torch.profiler.schedule(
             wait=3,
-            warmup=3,
-            active=20,
+            warmup=5,
+            active=10,
             repeat=1),
         on_trace_ready=tensorboard_trace_handler(path),
         with_stack=True,
