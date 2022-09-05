@@ -26,11 +26,10 @@ def test_distortion_normalize():
     radial_grid = np.linalg.norm(grid, axis=0, keepdims=True)
 
     grid_tensor = torch.tensor(grid, dtype=torch.float32).unsqueeze(0)
-    Kinv = torch.eye(4, 4, dtype=torch.float32).unsqueeze(0)
-    K = Kinv
+    calib = torch.tensor([1,1,0,0], dtype=torch.float32).unsqueeze(0)
 
     grid_tensor = torch.cat(
-        (grid_tensor, torch.ones_like(grid_tensor[:, 0:1])), dim=1)
+        (grid_tensor, torch.ones_like(grid_tensor[:, 0:1]), torch.ones_like(grid_tensor[:, 0:1])), dim=1)
 
     normalize = Normalize()
 
@@ -44,7 +43,7 @@ def test_distortion_normalize():
             lambda_dist, dtype=torch.float32).unsqueeze(0)
 
         p_tensor, valid = normalize.forward(
-            grid_tensor, Kinv, lambda_dist_tensor)
+            grid_tensor, calib, lambda_dist_tensor)
 
         p_tensor = p_tensor.squeeze().cpu()
         p_gt = torch.tensor(p, dtype=torch.float32)
@@ -71,7 +70,7 @@ def test_distortion_unnormalize():
 
     radial_grid = np.linalg.norm(grid, axis=0, keepdims=True)
 
-    K = torch.eye(4, 4, dtype=torch.float32).unsqueeze(0)
+    calib = torch.tensor([1,1,0,0], dtype=torch.float32).unsqueeze(0)
 
     unnormalize = Unnormalize()
 
@@ -91,7 +90,7 @@ def test_distortion_unnormalize():
         p_gt = torch.tensor(grid, dtype=torch.float32).unsqueeze(0)
         p_gt = torch.cat((p_gt, torch.ones_like(p[:, 0:2])), dim=1)
 
-        p_tensor, valid = unnormalize.forward(p, K, lambda_dist_tensor)
+        p_tensor, valid = unnormalize.forward(p, calib, lambda_dist_tensor)
 
         diff = torch.max((p_tensor-p_gt).abs().masked_select(valid))
 
@@ -115,7 +114,7 @@ def test_distortion_unnormalize_zero():
 
     radial_grid = np.linalg.norm(grid, axis=0, keepdims=True)
 
-    K = torch.eye(4, 4, dtype=torch.float32).unsqueeze(0)
+    calib = torch.tensor([1,1,0,0], dtype=torch.float32).unsqueeze(0)
 
     unnormalize = Unnormalize()
 
@@ -135,7 +134,7 @@ def test_distortion_unnormalize_zero():
         p_gt = torch.tensor(grid, dtype=torch.float32).unsqueeze(0)
         p_gt = torch.cat((p_gt, torch.ones_like(p[:, 0:2])), dim=1)
 
-        p_tensor, valid = unnormalize.forward(p, K, lambda_dist_tensor)
+        p_tensor, valid = unnormalize.forward(p, calib, lambda_dist_tensor)
 
         diff = torch.max((p_tensor-p_gt).abs().masked_select(valid))
 

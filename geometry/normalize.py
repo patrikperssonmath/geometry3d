@@ -1,7 +1,7 @@
 """ normalizes pixel coordinates and applies undistortion by the division model"""
 import torch
 
-from geometry.utility import apply_matrix
+from geometry.utility import apply_matrix, apply_inverse_calibration
 from torch import jit
 
 
@@ -15,10 +15,10 @@ class Normalize(jit.ScriptModule):
             [1.0], dtype=torch.float32).squeeze(), persistent=True)
 
     @jit.script_method
-    def forward(self, grid, Kinv, divison_lambda):
+    def forward(self, grid, calib, divison_lambda):
         """ call function """
 
-        grid = apply_matrix(Kinv[:, 0:3, 0:3], grid)
+        grid = apply_inverse_calibration(grid, calib)
 
         grid, valid = self.apply_undistortion(grid, divison_lambda)
 

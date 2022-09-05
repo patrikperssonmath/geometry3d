@@ -2,7 +2,6 @@
 
 import typing
 import torch
-from typing import Optional
 
 @torch.jit.script
 def to_homogeneous(grid, d_inv):
@@ -10,6 +9,21 @@ def to_homogeneous(grid, d_inv):
 
     return torch.cat((grid.expand(d_inv.shape[0], -1, -1, -1), d_inv), dim=1)
 
+@torch.jit.script
+def apply_calibration(X, calib):
+    f_x, f_y, c_x, c_y = calib.view(-1,4,1,1).unbind(1)
+
+    x, y, z, d = X.unbind(1)
+
+    return torch.stack([f_x*x+c_x, f_y*y+c_y, z, d], dim=1)
+
+@torch.jit.script
+def apply_inverse_calibration(X, calib):
+    f_x, f_y, c_x, c_y = calib.view(-1,4,1,1).unbind(1)
+
+    x, y, z, d = X.unbind(1)
+
+    return torch.stack([(x-c_x)/f_x, (y-c_y)/f_y, z, d], dim=1)
 
 @torch.jit.script
 def to_intrinsic_mat(calibration: torch.Tensor):
@@ -30,7 +44,6 @@ def to_intrinsic_mat(calibration: torch.Tensor):
 
     return k_mat
 
-
 @torch.jit.script
 def to_intrinsic_mat_inv(calibration: torch.Tensor):
     """ converts calibration vector to inverse calibration matrix"""
@@ -50,7 +63,6 @@ def to_intrinsic_mat_inv(calibration: torch.Tensor):
 
     return k_inv_mat
 
-
 @torch.jit.script
 def create_grid(width:int, height:int, dtype: torch.dtype=torch.float32, device:typing.Optional[torch.device]=None):
     """ creates a grid and normalizes coordiantes to [0, 1] """
@@ -61,14 +73,9 @@ def create_grid(width:int, height:int, dtype: torch.dtype=torch.float32, device:
                                                  device=device),
                                     indexing="xy")
 
-    grid_x = grid_x/(width-1.0)
-
-    grid_y = grid_y/(height-1.0)
-
-    grid = torch.stack((grid_x, grid_y, torch.ones_like(grid_x)), dim=0)
-
-    return torch.unsqueeze(grid, 0)
-
+    return torch.stack((grid_x/(width-1.0),
+                        grid_y/(height-1.0), 
+                        torch.ones_like(grid_x)), dim=0).unsqueeze(0)
 
 @torch.jit.script
 def apply_matrix(mat, vec: torch.Tensor):

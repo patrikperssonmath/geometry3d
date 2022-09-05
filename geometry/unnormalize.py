@@ -3,7 +3,7 @@ import torch
 from torch import jit
 
 from geometry.safe_division import SafeDivision
-from geometry.utility import apply_matrix
+from geometry.utility import apply_matrix, apply_calibration
 
 
 class Unnormalize(jit.ScriptModule):
@@ -21,7 +21,7 @@ class Unnormalize(jit.ScriptModule):
         self.safe_division = SafeDivision()
 
     @jit.script_method
-    def forward(self, x_proj_in, K, divison_lambda):
+    def forward(self, x_proj_in, calib, divison_lambda):
         """ call function """
 
         x_proj, mask, valid1 = self.apply_distortion_new(
@@ -32,12 +32,12 @@ class Unnormalize(jit.ScriptModule):
         x_proj, valid2 = self.apply_distortion_itr(
             x_proj, x_proj_in, divison_lambda)
 
-        return apply_matrix(K, x_proj), valid1.logical_and(valid2)
+        return apply_calibration(x_proj, calib), valid1.logical_and(valid2)
 
     @jit.script_method
     def apply_distortion_itr(self, x_d, x_u, lam_d):
         """
-        when the second order polynomial is degenerate (always works given sufficient iterations)
+        when the second order polynomial is degenerate
         """
 
         lam_d = lam_d.view(-1, 1, 1, 1)

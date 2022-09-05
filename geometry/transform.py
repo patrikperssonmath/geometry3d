@@ -4,7 +4,7 @@ from torch import jit
 from geometry.normalize import Normalize
 from geometry.project import Project
 from geometry.unnormalize import Unnormalize
-from geometry.utility import apply_matrix, create_grid, to_homogeneous, to_intrinsic_mat, to_intrinsic_mat_inv
+from geometry.utility import apply_matrix, create_grid, to_homogeneous
 from geometry.view_masker import ViewMasker
 
 
@@ -25,15 +25,11 @@ class TransformLayer(jit.ScriptModule):
 
         _, _, H, W = inv_depth.shape
 
-        grid = create_grid(W, H, dtype=inv_depth.dtype, device=inv_depth.device)
+        X = create_grid(W, H, dtype=inv_depth.dtype, device=inv_depth.device)        
 
-        K = to_intrinsic_mat(calib)
+        X = to_homogeneous(X, inv_depth)
 
-        Kinv = to_intrinsic_mat_inv(calib)
-
-        grid, valid_norm = self.normalize(grid, Kinv, divison_lambda)
-
-        X = to_homogeneous(grid, inv_depth)
+        X, valid_norm = self.normalize(X, calib, divison_lambda)
 
         if non_rigid:
 
@@ -47,7 +43,7 @@ class TransformLayer(jit.ScriptModule):
 
         x_proj, mask_src = self.project(X)
 
-        x_proj, valid_un_norm = self.unnormalzie(x_proj, K, divison_lambda)
+        x_proj, valid_un_norm = self.unnormalzie(x_proj, calib, divison_lambda)
 
         mask_src = mask_src.logical_and(self.view_masker.forward(x_proj[:, 0:2]))
 
