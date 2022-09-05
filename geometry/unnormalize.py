@@ -3,8 +3,7 @@ import torch
 from torch import jit
 
 from geometry.safe_division import SafeDivision
-from geometry.utility import apply_matrix, apply_calibration
-
+from geometry.utility import apply_calibration
 
 class Unnormalize(jit.ScriptModule):
     """ applies distortion by the division model and intrisic parameters"""

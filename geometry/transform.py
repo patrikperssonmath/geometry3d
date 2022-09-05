@@ -11,7 +11,7 @@ from geometry.view_masker import ViewMasker
 class TransformLayer(jit.ScriptModule):
     """ maps the pixel locations in in source to target """
 
-    def __init__(self):
+    def __init__(self, W, H):
         super().__init__()
 
         self.unnormalzie = Unnormalize()
@@ -19,15 +19,13 @@ class TransformLayer(jit.ScriptModule):
         self.project = Project()
         self.view_masker = ViewMasker()
 
+        self.register_buffer("grid", create_grid(W, H))
+
     @jit.script_method
     def forward(self, inv_depth, transform, calib, divison_lambda, non_rigid: bool):
         """ call function """
-
-        _, _, H, W = inv_depth.shape
-
-        X = create_grid(W, H, dtype=inv_depth.dtype, device=inv_depth.device)        
-
-        X = to_homogeneous(X, inv_depth)
+       
+        X = to_homogeneous(self.grid, inv_depth)
 
         X, valid_norm = self.normalize(X, calib, divison_lambda)
 

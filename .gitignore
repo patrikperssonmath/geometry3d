@@ -157,3 +157,4 @@ config_server.yml
 !launch.json
 !tasks.json
 /prof
+profiler_out

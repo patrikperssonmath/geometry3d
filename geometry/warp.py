@@ -8,10 +8,10 @@ from geometry.interpolate import Interpolate
 class Warp(jit.ScriptModule):
     """ warps image from target to source """
 
-    def __init__(self, mode="bilinear"):
+    def __init__(self, W, H, mode="bilinear"):
         super().__init__()
 
-        self.transform = TransformLayer()
+        self.transform = TransformLayer(W, H)
 
         self.interpolate = Interpolate(mode)
 

@@ -33,7 +33,7 @@ def test_transform():
 
         T = lietorch.SE3.exp(log_pose).matrix()
 
-        transform = TransformLayer()
+        transform = TransformLayer(W,H)
 
         x_proj, mask_src = transform.forward(
             d_inv, T, calib, lambda_dist, False)
