@@ -23,4 +23,4 @@ class Warp(jit.ScriptModule):
 
         x_proj, mask = self.transform.forward(inv_depth, transform, calib, divison_lambda, non_rigid)
 
-        return self.interpolate.forward(img, x_proj).where(mask, self.zero)
+        return self.interpolate.forward(img, x_proj).where(mask, self.zero), mask
