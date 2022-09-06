@@ -24,6 +24,7 @@ class Warp(jit.ScriptModule):
         shape = inv_depth.shape
 
         if len(shape)==5:
+            img = img.view(-1, img.shape[-3], img.shape[-2], img.shape[-1])
             inv_depth = inv_depth.view(-1, 1, inv_depth.shape[-2], inv_depth.shape[-1])
 
             if non_rigid:
