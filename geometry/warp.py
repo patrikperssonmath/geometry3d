@@ -25,7 +25,12 @@ class Warp(jit.ScriptModule):
 
         if len(shape)==5:
             inv_depth = inv_depth.view(-1, 1, inv_depth.shape[-2], inv_depth.shape[-1])
-            transform = transform.view(-1, 4, 4)
+
+            if non_rigid:
+                transform = transform.view(-1, transform.shape[2], transform.shape[3], 4, 4)
+            else:
+                transform = transform.view(-1, 4, 4)
+
             calib = calib.view(-1, 4)
             divison_lambda = divison_lambda.view(-1, 1)
 
