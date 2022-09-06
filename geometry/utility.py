@@ -4,6 +4,40 @@ import typing
 import torch
 
 @torch.jit.script
+def se3_exp(eta:torch.Tensor):
+
+    tx,ty,tz,wx,wy,wz = eta.unbind(-1)
+
+    o = torch.zeros_like(wx)
+
+    A = torch.stack([o, -wz, wy, tx, 
+                    wz, o, -wx, ty, 
+                    -wy, wx, o, tz,
+                    o, o, o, o], dim=-1)
+
+    if len(A.shape)==5:
+
+        A = A.view(A.shape[0], A.shape[1], A.shape[2], A.shape[3], 4, 4)
+
+    elif len(A.shape)==4:
+
+        A = A.view(A.shape[0], A.shape[1], A.shape[2], 4, 4)
+
+    elif len(A.shape)==3:
+
+        A = A.view(A.shape[0], A.shape[1], 4, 4)
+
+    elif len(A.shape)==2:
+
+        A = A.view(A.shape[0], 4, 4)
+
+    else:
+
+        raise Exception("invalid dimensions!")
+
+    return torch.linalg.matrix_exp(A)
+
+@torch.jit.script
 def to_homogeneous(grid, d_inv):
     """ create homogeneous vector with inverse depth as the last coordiante """
 

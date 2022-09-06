@@ -6,15 +6,46 @@ import sophus as sp
 
 import torch
 from geometry.transform import TransformLayer
-from geometry.utility import to_intrinsic_mat, to_intrinsic_mat_inv, create_grid, to_homogeneous
+from geometry.utility import to_intrinsic_mat, to_intrinsic_mat_inv, create_grid, to_homogeneous, se3_exp
 from geometry.view_masker import ViewMasker
 from scipy.spatial.transform import Rotation
 import lietorch
+import lietorch
 
-torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cuda.matmul.allow_tf32 = True
 
-torch.backends.cudnn.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = True
 
+
+def test_transfom_mat():
+
+    for i in range(100):
+        theta = 1e-1*torch.randn((1,1,100,100, 6), dtype=torch.float32)
+
+        Tli = lietorch.SE3.exp(theta).matrix()
+        T = se3_exp(theta)
+
+        diff = torch.max(np.abs(Tli-T))
+
+        assert diff < 1e-4
+
+        theta = 1e-1*torch.randn((1, 100,100, 6), dtype=torch.float32)
+
+        Tli = lietorch.SE3.exp(theta).matrix()
+        T = se3_exp(theta)
+
+        diff = torch.max(np.abs(Tli-T))
+
+        assert diff < 1e-4
+
+        theta = 1e-1*torch.randn((5, 6), dtype=torch.float32)
+
+        Tli = lietorch.SE3.exp(theta).matrix()
+        T = se3_exp(theta)
+
+        diff = torch.max(np.abs(Tli-T))
+
+        assert diff < 1e-4
 
 def test_transform():
 
@@ -69,7 +100,7 @@ def test_transform():
         diff = torch.max(
             (x_proj-torch.tensor(x_coord, dtype=torch.float32)).abs().masked_select(mask_src))
 
-        assert diff < 5e-6
+        assert diff < 1e-5
 
 
 def test_view_masker():
