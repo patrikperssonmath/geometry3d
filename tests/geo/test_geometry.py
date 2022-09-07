@@ -64,10 +64,12 @@ def test_transform():
 
         T = lietorch.SE3.exp(log_pose).matrix()
 
+        T_non_rigid = T#.view(1, 1, 1, 4, 4).expand(-1,H,W,-1,-1)
+
         transform = TransformLayer(W,H)
 
         x_proj, mask_src = transform.forward(
-            d_inv, T, calib, lambda_dist, False)
+            d_inv, T_non_rigid, calib, lambda_dist)
 
         ###### calculate gt! ######
 

@@ -4,7 +4,7 @@ from torch import jit
 from geometry.normalize import Normalize
 from geometry.project import Project
 from geometry.unnormalize import Unnormalize
-from geometry.utility import apply_matrix, create_grid, to_homogeneous
+from geometry.utility import create_grid, to_homogeneous
 from geometry.view_masker import ViewMasker
 
 
@@ -22,22 +22,19 @@ class TransformLayer(jit.ScriptModule):
         self.register_buffer("grid", create_grid(W, H))
 
     @jit.script_method
-    def forward(self, inv_depth, transform, calib, divison_lambda, non_rigid: bool):
+    def forward(self, inv_depth, transform, calib, divison_lambda):
         """ call function """
        
         X = to_homogeneous(self.grid, inv_depth)
 
         X, valid_norm = self.normalize(X, calib, divison_lambda)
 
-        if non_rigid:
+        if len(transform.shape)==3:
+            transform = transform.view(transform.shape[0], 1, 1, 4, 4)
 
-            X = transform@X.permute(0, 2, 3, 1).contiguous().unsqueeze(-1)
+        X = transform@X.permute(0, 2, 3, 1).contiguous().unsqueeze(-1)
 
-            X = X.squeeze(-1).permute(0, 3, 1, 2).contiguous()
-
-        else:
-
-            X = apply_matrix(transform, X)
+        X = X.squeeze(-1).permute(0, 3, 1, 2).contiguous()
 
         x_proj, mask_src = self.project(X)
 

@@ -51,7 +51,7 @@ def profile_transform():
         for step in range(40):
             print("step:{}".format(step))
 
-            test = transform.forward( depth_inv, T, calib, division_lambda, False)
+            test = transform.forward( depth_inv, T, calib, division_lambda)
 
             profiler.step()
 
