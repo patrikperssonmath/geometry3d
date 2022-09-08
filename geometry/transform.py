@@ -1,5 +1,5 @@
 """ maps the pixel locations in in source to target """
-from torch import jit
+from torch import nn
 
 from geometry.normalize import Normalize
 from geometry.project import Project
@@ -8,7 +8,7 @@ from geometry.utility import apply_matrix, create_grid, to_homogeneous
 from geometry.view_masker import ViewMasker
 
 
-class TransformLayer(jit.ScriptModule):
+class TransformLayer(nn.Module):
     """ maps the pixel locations in in source to target """
 
     def __init__(self, W, H):
@@ -19,9 +19,8 @@ class TransformLayer(jit.ScriptModule):
         self.project = Project()
         self.view_masker = ViewMasker()
 
-        self.register_buffer("grid", create_grid(W, H))
+        self.register_buffer("grid", create_grid(W, H), persistent=False)
 
-    @jit.script_method
     def forward(self, inv_depth, transform, calib, divison_lambda, non_rigid: bool):
         """ call function """
        
