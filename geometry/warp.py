@@ -19,7 +19,7 @@ class Warp(jit.ScriptModule):
         self.register_buffer("zero", torch.tensor([0.0], dtype=torch.float32).squeeze(0))
 
     @jit.script_method
-    def forward(self, img, inv_depth, transform, divison_lambda_i, calib_j:typing.Optional[torch.Tensor]=None, divison_lambda_j:typing.Optional[torch.Tensor]=None, non_rigid: bool=False):
+    def forward(self, img, inv_depth, transform, calib_i, divison_lambda_i, calib_j:typing.Optional[torch.Tensor]=None, divison_lambda_j:typing.Optional[torch.Tensor]=None, non_rigid: bool=False):
         """ call function """
 
         shape = inv_depth.shape
