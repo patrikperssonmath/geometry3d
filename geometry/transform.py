@@ -21,12 +21,12 @@ class TransformLayer(nn.Module):
 
         self.register_buffer("grid", create_grid(W, H), persistent=False)
 
-    def forward(self, inv_depth, transform, calib, divison_lambda, non_rigid: bool):
+    def forward(self, inv_depth, transform, calib_i, divison_lambda_i, calib_j, divison_lambda_j, non_rigid: bool):
         """ call function """
        
         X = to_homogeneous(self.grid, inv_depth)
 
-        X, valid_norm = self.normalize(X, calib, divison_lambda)
+        X, valid_norm = self.normalize(X, calib_i, divison_lambda_i)
 
         if non_rigid:
 
@@ -40,7 +40,7 @@ class TransformLayer(nn.Module):
 
         x_proj, mask_src = self.project(X)
 
-        x_proj, valid_un_norm = self.unnormalzie(x_proj, calib, divison_lambda)
+        x_proj, valid_un_norm = self.unnormalzie(x_proj, calib_j, divison_lambda_j)
 
         mask_src = mask_src.logical_and(self.view_masker.forward(x_proj[:, 0:2]))
 

@@ -1,5 +1,6 @@
 """ warps image from target to source """
 
+import typing
 import torch
 from torch import jit
 from geometry.transform import TransformLayer
@@ -18,10 +19,16 @@ class Warp(jit.ScriptModule):
         self.register_buffer("zero", torch.tensor([0.0], dtype=torch.float32).squeeze(0))
 
     @jit.script_method
-    def forward(self, img, inv_depth, transform, calib, divison_lambda, non_rigid: bool):
+    def forward(self, img, inv_depth, transform, divison_lambda_i, calib_j:typing.Optional[torch.Tensor]=None, divison_lambda_j:typing.Optional[torch.Tensor]=None, non_rigid: bool=False):
         """ call function """
 
         shape = inv_depth.shape
+
+        if calib_j is None:
+            calib_j = calib_i
+
+        if divison_lambda_j is None:
+            divison_lambda_j = divison_lambda_i
 
         if len(shape)==5:
             img = img.view(-1, img.shape[-3], img.shape[-2], img.shape[-1])
@@ -32,10 +39,13 @@ class Warp(jit.ScriptModule):
             else:
                 transform = transform.view(-1, 4, 4)
 
-            calib = calib.view(-1, 4)
-            divison_lambda = divison_lambda.view(-1, 1)
+            calib_i = calib_i.view(-1, 4)
+            divison_lambda_i = divison_lambda_i.view(-1, 1)
 
-        x_proj, mask = self.transform.forward(inv_depth, transform, calib, divison_lambda, non_rigid)
+            calib_j = calib_j.view(-1, 4)    
+            divison_lambda_j = divison_lambda_j.view(-1, 1)
+
+        x_proj, mask = self.transform.forward(inv_depth, transform, calib_i, divison_lambda_i, calib_j, divison_lambda_j, non_rigid)
 
         img_w = self.interpolate.forward(img, x_proj).where(mask, self.zero)
 
