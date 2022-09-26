@@ -48,6 +48,4 @@ class Warp(jit.ScriptModule):
 
             x_proj = x_proj.view(B, N, -1, img_w.shape[-2], img_w.shape[-1])
 
-        img_w = img_w.where(mask, self.zero)
-
         return img_w, mask, x_proj
