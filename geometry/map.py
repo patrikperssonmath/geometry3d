@@ -8,10 +8,10 @@ from geometry.interpolate import Interpolate
 class Map(jit.ScriptModule):
     """ maps image from target to source """
 
-    def __init__(self, W, H, mode="bilinear"):
+    def __init__(self, W, H, mode="bilinear", distortion=True):
         super().__init__()
 
-        self.transform = TransformLayer(W, H)
+        self.transform = TransformLayer(W, H, distortion)
 
     @jit.script_method
     def forward(self, inv_depth, transform, calib_i, divison_lambda_i, calib_j:typing.Optional[torch.Tensor]=None, divison_lambda_j:typing.Optional[torch.Tensor]=None, non_rigid: bool=False):

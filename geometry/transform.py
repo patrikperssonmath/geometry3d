@@ -11,11 +11,11 @@ from geometry.view_masker import ViewMasker
 class TransformLayer(nn.Module):
     """ maps the pixel locations in in source to target """
 
-    def __init__(self, W, H):
+    def __init__(self, W, H, distortion=True):
         super().__init__()
 
-        self.unnormalzie = Unnormalize()
-        self.normalize = Normalize()
+        self.unnormalzie = Unnormalize(distortion)
+        self.normalize = Normalize(distortion)
         self.project = Project()
         self.view_masker = ViewMasker()
 
@@ -44,6 +44,8 @@ class TransformLayer(nn.Module):
 
         mask_src = mask_src.logical_and(self.view_masker.forward(x_proj[:, 0:2]))
 
-        mask_src = mask_src.logical_and(valid_norm).logical_and(valid_un_norm)
+        if valid_norm is not None:
+
+            mask_src = mask_src.logical_and(valid_norm).logical_and(valid_un_norm)
 
         return x_proj, mask_src

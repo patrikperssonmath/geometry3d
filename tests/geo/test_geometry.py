@@ -67,7 +67,7 @@ def test_transform():
         transform = TransformLayer(W,H)
 
         x_proj, mask_src = transform.forward(
-            d_inv, T, calib, lambda_dist, False)
+            d_inv, T, calib, lambda_dist, calib, lambda_dist, non_rigid=False)
 
         ###### calculate gt! ######
 

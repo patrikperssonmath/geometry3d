@@ -8,7 +8,7 @@ from geometry.utility import apply_calibration
 class Unnormalize(jit.ScriptModule):
     """ applies distortion by the division model and intrisic parameters"""
 
-    def __init__(self):
+    def __init__(self, distortion = True):
         super().__init__()
 
         self.register_buffer("one", torch.tensor(
@@ -18,20 +18,28 @@ class Unnormalize(jit.ScriptModule):
             [0.0], dtype=torch.float32).squeeze(), persistent=True)
 
         self.safe_division = SafeDivision()
+        self.distortion = distortion
 
     @jit.script_method
     def forward(self, x_proj_in, calib, divison_lambda):
         """ call function """
 
-        x_proj, mask, valid1 = self.apply_distortion(
-            x_proj_in, divison_lambda)
+        if self.distortion:
 
-        x_proj = torch.where(mask.logical_and(valid1), x_proj, x_proj_in)
+            x_proj, mask, valid1 = self.apply_distortion(
+                x_proj_in, divison_lambda)
 
-        x_proj, valid2 = self.apply_distortion_itr(
-            x_proj, x_proj_in, divison_lambda)
+            x_proj = torch.where(mask.logical_and(valid1), x_proj, x_proj_in)
 
-        return apply_calibration(x_proj, calib), valid1.logical_and(valid2)
+            x_proj, valid2 = self.apply_distortion_itr(
+                x_proj, x_proj_in, divison_lambda)
+
+            return apply_calibration(x_proj, calib), valid1.logical_and(valid2)
+
+        else:
+
+            return apply_calibration(x_proj_in, calib), None
+
 
     @jit.script_method
     def apply_distortion_itr(self, x_d, x_u, lam_d):

@@ -8,8 +8,9 @@ from torch import jit
 class Normalize(jit.ScriptModule):
     """ normalizes pixel coordinates and applies undistortion by the division model"""
 
-    def __init__(self):
+    def __init__(self, distortion=True):
         super().__init__()
+        self.distortion = distortion
 
         self.register_buffer("one", torch.tensor(
             [1.0], dtype=torch.float32).squeeze(), persistent=True)
@@ -18,11 +19,17 @@ class Normalize(jit.ScriptModule):
     def forward(self, grid, calib, divison_lambda):
         """ call function """
 
-        grid = apply_inverse_calibration(grid, calib)
+        if self.distortion:
 
-        grid, valid = self.apply_undistortion(grid, divison_lambda)
+            grid = apply_inverse_calibration(grid, calib)
 
-        return grid, valid
+            grid, valid = self.apply_undistortion(grid, divison_lambda)
+
+            return grid, valid
+
+        else:
+
+            return apply_inverse_calibration(grid, calib), None
 
     @jit.script_method
     def apply_undistortion(self, grid, lam_d):
