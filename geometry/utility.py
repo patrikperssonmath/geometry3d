@@ -49,7 +49,7 @@ def apply_calibration(X, calib):
 
     x, y, z, d = X.unbind(1)
 
-    return torch.stack([f_x*x+c_x, f_y*y+c_y, z, d], dim=1)
+    return torch.stack([f_x*x+c_x*z, f_y*y+c_y*z, z, d], dim=1)
 
 @torch.jit.script
 def apply_inverse_calibration(X, calib):
@@ -57,7 +57,7 @@ def apply_inverse_calibration(X, calib):
 
     x, y, z, d = X.unbind(1)
 
-    return torch.stack([(x-c_x)/f_x, (y-c_y)/f_y, z, d], dim=1)
+    return torch.stack([(x-c_x*z)/f_x, (y-c_y*z)/f_y, z, d], dim=1)
 
 @torch.jit.script
 def to_intrinsic_mat(calibration: torch.Tensor):
