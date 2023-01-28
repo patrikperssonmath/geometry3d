@@ -20,25 +20,25 @@ RUN pip install git+https://github.com/princeton-vl/lietorch.git
 
 # install packages
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    tzdata=2022a-0ubuntu0.18.04 \
-    dirmngr=2.2.4-1ubuntu1.4 \
-    gnupg2=2.2.4-1ubuntu1.4 \    
-    wget=1.19.4-1ubuntu2.2 \
-    unzip=6.0-21ubuntu1.1 \
+    tzdata \
+    dirmngr \
+    gnupg2 \    
+    wget \
+    unzip \
     ffmpeg \
-    libsm6=2:1.2.2-1 \
-    libxext6=2:1.3.3-1 \
-    nano=2.9.3-2 \
+    libsm6 \
+    libxext6 \
+    nano \
     && rm -rf /var/lib/apt/lists/*
 
 # install build packages
 
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
-    build-essential=12.4ubuntu1 \
+    build-essential \
     libcurl4-gnutls-dev \
-    libpng++-dev=0.2.9-1 \
-    cmake=3.10.2-1ubuntu2.18.04.2 \
-    protobuf-compiler=3.0.0-9.1ubuntu1 \
+    libpng++-dev \
+    cmake \
+    protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.txt
@@ -70,7 +70,7 @@ RUN python3 -m pip install sophuspy
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
     && apt-get update \
-    && apt-get install -y sudo=1.8.21p2-3ubuntu1.4 \
+    && apt-get install -y sudo \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     && rm -rf /var/lib/apt/lists/*

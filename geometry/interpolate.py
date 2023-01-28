@@ -13,7 +13,7 @@ class Interpolate(jit.ScriptModule):
 
     @jit.script_method
     def forward(self, img, x_cord):
-        """ interpolates coordinates x_coord: [B,2,H,W] \in [0, 1] """
+        """ interpolates coordinates x_coord: [B,2,H,W] \\in [0, 1] """
 
         shape = img.shape
 
