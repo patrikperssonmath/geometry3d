@@ -38,7 +38,7 @@ class Unnormalize(jit.ScriptModule):
 
         else:
 
-            return apply_calibration(x_proj_in, calib), None
+            return apply_calibration(x_proj_in, calib), self.one > 0
 
 
     @jit.script_method

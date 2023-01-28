@@ -3,7 +3,6 @@ import torch
 
 from geometry.utility import apply_matrix, apply_inverse_calibration
 from torch import jit
-from typing import Optional, Tuple
 
 class Normalize(jit.ScriptModule):
     """ normalizes pixel coordinates and applies undistortion by the division model"""
@@ -16,7 +15,7 @@ class Normalize(jit.ScriptModule):
             [1.0], dtype=torch.float32).squeeze(), persistent=True)
 
     @jit.script_method
-    def forward(self, grid, calib, divison_lambda) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    def forward(self, grid, calib, divison_lambda):
         """ call function """
 
         if self.distortion:
@@ -29,7 +28,7 @@ class Normalize(jit.ScriptModule):
 
         else:
 
-            return apply_inverse_calibration(grid, calib), None
+            return apply_inverse_calibration(grid, calib), self.one > 0
 
     @jit.script_method
     def apply_undistortion(self, grid, lam_d):

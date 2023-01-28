@@ -5,6 +5,7 @@ import numpy as np
 import sophus as sp
 
 import torch
+from geometry.map import Map
 from geometry.transform import TransformLayer
 from geometry.utility import to_intrinsic_mat, to_intrinsic_mat_inv, create_grid, to_homogeneous, se3_exp
 from geometry.view_masker import ViewMasker
@@ -46,6 +47,27 @@ def test_transfom_mat():
         diff = torch.max(np.abs(Tli-T))
 
         assert diff < 1e-4
+
+def test_map():
+
+    for i in range(100):
+
+        W = H = 100
+
+        d_inv = torch.randn((1, 1, H, W), dtype=torch.float32).abs() + 0.01
+
+        log_pose = 1e-1*torch.randn((1, 6), dtype=torch.float32)
+
+        calib = torch.cat((1e-1*torch.randn((1, 2), dtype=torch.float32)+1, 1e-1 *
+                           torch.randn((1, 2), dtype=torch.float32)+0.5), dim=1)
+
+        lambda_dist = torch.zeros(1, 1)
+
+        T = lietorch.SE3.exp(log_pose).matrix()
+
+        map = Map(W,H)
+
+        map.forward(d_inv,T,calib,lambda_dist,calib,lambda_dist,False)
 
 def test_transform():
 
